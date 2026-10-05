@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "df47483d-4de7-4142-a2fc-3e4f5941db1a",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.json",
+  "output": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.html",
+  "specification": {
+    "sha256": "31bf19a0245d1ddd71f2369880c7b05dc8aa6b4d474cdde28ebad8cd74ea998f",
+    "bytes": 5308
+  },
+  "artifact": {
+    "sha256": "956a546ba960899d7fc69084e202ecb45bf785f34222da4c2fa52cdb5ab05f10",
+    "bytes": 777811
+  }
+}

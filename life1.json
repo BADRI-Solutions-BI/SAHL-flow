@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Challan Review Lifecycle",
+    "output": ".archify/system-sahl-full-20261005-083100/life1.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "main", "label": "Review path" },
+    { "id": "waiting", "label": "Supplier loop" },
+    { "id": "terminal", "label": "Terminal" }
+  ],
+  "states": [
+    { "id": "up", "type": "start", "label": "Upload / email", "sublabel": "pipeline runs", "lane": "main", "col": 0 },
+    { "id": "pending", "type": "waiting", "label": "pending_review", "sublabel": "fields, match, flags", "lane": "main", "col": 1, "tag": "human gate" },
+    { "id": "staged", "type": "success", "label": "staged", "sublabel": "sap_outbound row", "lane": "main", "col": 3 },
+    { "id": "needs", "type": "waiting", "label": "needs_supplier_info", "sublabel": "awaiting vendor", "lane": "waiting", "col": 1 },
+    { "id": "received", "type": "neutral", "label": "received", "sublabel": "info back, re-run", "lane": "waiting", "col": 2 },
+    { "id": "rejected", "type": "failure", "label": "rejected", "sublabel": "reason required", "lane": "terminal", "col": 3 }
+  ],
+  "transitions": [
+    { "id": "t1", "from": "up", "to": "pending", "label": "pipeline done", "variant": "emphasis" },
+    { "id": "t2", "from": "pending", "to": "staged", "label": "approve", "variant": "emphasis" },
+    { "id": "t3", "from": "pending", "to": "needs", "label": "request_info", "variant": "default" },
+    { "id": "t4", "from": "needs", "to": "received", "label": "info received", "variant": "default" },
+    { "id": "t5", "from": "received", "to": "pending", "label": "re-run", "variant": "dashed" },
+    { "id": "t6", "from": "pending", "to": "rejected", "label": "reject", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Only these moves", "items": ["Any other transition returns 409", "Every move writes an append-only audit row"] },
+    { "dot": "rose", "title": "Not a state", "items": ["Re-run reuses the same document_id", "Re-run is refused once sap_outbound exists"] }
+  ]
+}

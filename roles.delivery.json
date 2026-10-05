@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "f562d4dd-a196-43c0-a764-b04e774843a3",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\roles.json",
+  "output": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\roles.html",
+  "specification": {
+    "sha256": "29f009aa0ae7ca4d1ba4e073f2c0f57184da8b8882dbcf325e335e1623be1d4e",
+    "bytes": 3291
+  },
+  "artifact": {
+    "sha256": "98f0321ee9a14b56a46d0ceae07065dd89c7f0524ccc3607599cba83ef76be10",
+    "bytes": 759432
+  }
+}

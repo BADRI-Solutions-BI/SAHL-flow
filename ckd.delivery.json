@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "52cd40ca-1342-4e25-ba29-63d50fbcd58f",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\ckd.json",
+  "output": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\ckd.html",
+  "specification": {
+    "sha256": "270a8b1305ec161098e2667ab9e0f0339deab42feb062a60ab6ff802f5470d69",
+    "bytes": 3472
+  },
+  "artifact": {
+    "sha256": "e38e4f5dd69e8f4e9cbed846f3796aea151885d6bb7a8e3600ce4557325f97f6",
+    "bytes": 760885
+  }
+}

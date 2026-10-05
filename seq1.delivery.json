@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9fc56c94-b0bb-4590-897b-d5f4e295cc0a",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq1.json",
+  "output": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq1.html",
+  "specification": {
+    "sha256": "818d30e2f615265613d5ad1cee1ff5125adc98ef99ae81c966637dec7520d67e",
+    "bytes": 2740
+  },
+  "artifact": {
+    "sha256": "55679b4b24f23f66ca238555ae08ab523d02468d9ec5df278eb55c7e5ca42304",
+    "bytes": 755729
+  }
+}

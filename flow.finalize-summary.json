@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "dataflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.json",
+    "sha256": "31bf19a0245d1ddd71f2369880c7b05dc8aa6b4d474cdde28ebad8cd74ea998f",
+    "bytes": 5308
+  },
+  "artifact": {
+    "path": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.html",
+    "sha256": "956a546ba960899d7fc69084e202ecb45bf785f34222da4c2fa52cdb5ab05f10",
+    "bytes": 777811
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.finalize.json",
+    "summaryReceipt": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.finalize-summary.json",
+    "browserCheckReceipt": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\flow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.0.1",
+    "availableVersion": "3.0.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-05T03:32:23.014Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 10048
+}

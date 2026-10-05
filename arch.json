@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SAHL / Pehl: System Architecture",
+    "output": ".archify/system-sahl-full-20261005-083100/arch.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "users", "type": "external", "label": "Staff browsers", "sublabel": "4 roles", "pos": [40, 360], "size": [130, 60] },
+    { "id": "caddy", "type": "cloud", "label": "Caddy", "sublabel": ":80/:443 TLS", "pos": [230, 360], "size": [130, 60] },
+    { "id": "webv2", "type": "frontend", "label": "web-v2", "sublabel": "v2 host :3006", "pos": [230, 220], "size": [130, 60] },
+    { "id": "web", "type": "frontend", "label": "web (Next.js 15)", "sublabel": "route handlers :3000", "pos": [460, 360], "size": [150, 60], "tag": "service key" },
+    { "id": "n8n", "type": "external", "label": "n8n help bot", "sublabel": "demo: OpenRouter", "pos": [460, 220], "size": [150, 60] },
+    { "id": "agent", "type": "backend", "label": "agent-service", "sublabel": "FastAPI + LangGraph :8000", "pos": [730, 360], "size": [160, 60], "tag": "token auth" },
+    { "id": "ocr", "type": "external", "label": "OCR provider seam", "sublabel": "Azure DI | cached | GLM-OCR", "pos": [730, 220], "size": [160, 60] },
+    { "id": "llm", "type": "external", "label": "LLM seam get_llm()", "sublabel": "Anthropic | OpenRouter | Ollama", "pos": [990, 360], "size": [170, 60] },
+    { "id": "gateway", "type": "cloud", "label": "Envoy gateway", "sublabel": "Supabase API :8001", "pos": [230, 500], "size": [130, 60] },
+    { "id": "db", "type": "database", "label": "Supabase Postgres", "sublabel": "32 tables, RLS, Realtime, Auth, Storage", "pos": [440, 500], "size": [380, 64] },
+    { "id": "sap", "type": "external", "label": "SAP S/4HANA", "sublabel": "SAP_BACKEND stub | odata", "pos": [190, 640], "size": [150, 60] },
+    { "id": "worker", "type": "backend", "label": "import-worker", "sublabel": "poll every 5s", "pos": [460, 640], "size": [140, 60] },
+    { "id": "mail", "type": "backend", "label": "mail-intake", "sublabel": "poll every 60s", "pos": [680, 640], "size": [140, 60] },
+    { "id": "graph", "type": "external", "label": "Microsoft Graph", "sublabel": "shared mailbox", "pos": [920, 640], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "Supabase self-hosted", "wraps": ["gateway", "db"] }
+  ],
+  "connections": [
+    { "id": "u-caddy", "from": "users", "to": "caddy", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "caddy-web", "from": "caddy", "to": "web", "label": "app", "variant": "emphasis" },
+    { "id": "caddy-v2", "from": "caddy", "to": "webv2", "label": "v2 host", "fromSide": "top", "toSide": "bottom", "variant": "dashed" },
+    { "id": "caddy-gw", "from": "caddy", "to": "gateway", "label": "/auth /rest /realtime", "fromSide": "bottom", "toSide": "top" },
+    { "id": "gw-db", "from": "gateway", "to": "db" },
+    { "id": "web-n8n", "from": "web", "to": "n8n", "label": "help chat", "fromSide": "top", "toSide": "bottom", "variant": "dashed" },
+    { "id": "web-agent", "from": "web", "to": "agent", "label": "SSE proxy", "variant": "emphasis" },
+    { "id": "web-db", "from": "web", "to": "db", "label": "writes", "fromSide": "bottom", "toSide": "top" },
+    { "id": "agent-ocr", "from": "agent", "to": "ocr", "label": "read tokens", "fromSide": "top", "toSide": "bottom" },
+    { "id": "agent-llm", "from": "agent", "to": "llm", "label": "reason" },
+    { "id": "agent-db", "from": "agent", "to": "db", "label": "persist", "fromSide": "bottom", "toSide": "top" },
+    { "id": "worker-db", "from": "worker", "to": "db", "label": "claim + write", "fromSide": "top", "toSide": "bottom" },
+    { "id": "mail-db", "from": "mail", "to": "db", "label": "intake rows", "fromSide": "top", "toSide": "bottom" },
+    { "id": "worker-sap", "from": "worker", "to": "sap", "label": "GRN (gated)", "variant": "security", "fromSide": "left", "toSide": "right" },
+    { "id": "mail-graph", "from": "mail", "to": "graph", "label": "poll + reply", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Two owned images", "items": ["web and web-v2 (Next.js), agent-service image reused by import-worker and mail-intake", "Browser reads via anon key and Realtime; every write goes through a route handler", "Ollama (GLM-OCR) only with the onprem profile"] },
+    { "dot": "violet", "title": "Four swap seams", "items": ["EXTRACTION_PROVIDER azure|cached|local", "LLM_BACKEND anthropic|ollama|openrouter", "ComplexityRouter RuleRouter live, RidgeShadow logged", "SAP_BACKEND stub|odata (SAP_AUTO_POST_GR and SAP_PO_UPDATE_ENABLED default off)"] },
+    { "dot": "rose", "title": "Confidentiality", "items": ["Cloud AI is demo-only on synthetic fixtures", "Production: GLM-OCR and a local LLM, no document content leaves the host"] }
+  ]
+}

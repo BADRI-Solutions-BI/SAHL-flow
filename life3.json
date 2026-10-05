@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "GRN Outbound (sap_outbound.status)",
+    "output": ".archify/system-sahl-full-20261005-083100/life3.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "main", "label": "Real SAP" },
+    { "id": "stub", "label": "Stub backend" },
+    { "id": "exits", "label": "Other outcomes" }
+  ],
+  "states": [
+    { "id": "staged", "type": "start", "label": "staged", "sublabel": "idempotency key unique", "lane": "main", "col": 0 },
+    { "id": "exported", "type": "success", "label": "exported", "sublabel": "sap_document_no", "lane": "main", "col": 2 },
+    { "id": "stub", "type": "success", "label": "posted_stub", "sublabel": "fake doc number", "lane": "stub", "col": 2 },
+    { "id": "failed", "type": "failure", "label": "post_failed", "sublabel": "after 3 attempts", "lane": "exits", "col": 2 },
+    { "id": "super", "type": "neutral", "label": "superseded", "sublabel": "status exists", "lane": "exits", "col": 3 }
+  ],
+  "transitions": [
+    { "id": "g1", "from": "staged", "to": "exported", "label": "SAP_BACKEND=odata", "variant": "emphasis" },
+    { "id": "g2", "from": "staged", "to": "stub", "label": "SAP_BACKEND=stub", "variant": "dashed" },
+    { "id": "g3", "from": "staged", "to": "failed", "label": "post error", "variant": "security" },
+    { "id": "g4", "from": "staged", "to": "super", "label": "replaced", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "amber", "title": "Gates", "items": ["Post runs only when SAP_AUTO_POST_GR is true", "Blocks with post_failed on PLACEHOLDER plant, location, movement type or company code"] },
+    { "dot": "rose", "title": "Unverified", "items": ["OData client targets API_MATERIAL_DOCUMENT_SRV but is untested against a real S/4HANA", "Challan approve stages the row and never calls SAP", "What triggers superseded was not traced"] }
+  ]
+}

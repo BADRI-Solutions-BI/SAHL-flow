@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CKD Import: Packing List to SAP Goods Receipt",
+    "output": ".archify/system-sahl-full-20261005-083100/ckd.html",
+    "quality_profile": "showcase",
+    "viewBox": [1230, 786]
+  },
+  "lanes": [
+    { "id": "proc", "label": "Procurement" },
+    { "id": "sys", "label": "import-worker" },
+    { "id": "wh", "label": "Warehouse" },
+    { "id": "qa", "label": "Quality", "variant": "exception" },
+    { "id": "sap", "label": "SAP and outputs" }
+  ],
+  "nodes": [
+    { "id": "up", "lane": "proc", "col": 0, "type": "frontend", "label": "Upload packing list", "sublabel": "web or sender email", "width": 140 },
+    { "id": "claim", "lane": "sys", "col": 1, "type": "backend", "label": "Claim + preview", "sublabel": "state queued", "width": 140, "tag": "SKIP LOCKED" },
+    { "id": "sheet", "lane": "proc", "col": 2, "type": "frontend", "label": "Confirm sheet", "sublabel": "if not named in email", "width": 140, "tag": "confirm_sheet" },
+    { "id": "parse", "lane": "sys", "col": 3, "type": "backend", "label": "Parse + basket", "sublabel": "group by PO, 4 checkpoints", "width": 140 },
+    { "id": "resolve", "lane": "proc", "col": 4, "type": "security", "label": "Resolve + approve", "sublabel": "accept, reject, map", "width": 140, "tag": "import.approve" },
+    { "id": "poupd", "lane": "sap", "col": 3, "type": "cloud", "label": "update_po_quantity", "sublabel": "best effort, 3 tries", "width": 140, "tag": "gated off" },
+    { "id": "recv", "lane": "wh", "col": 5, "type": "frontend", "label": "Receive + confirm", "sublabel": "per-line counts", "width": 140, "tag": "inbounds.confirm" },
+    { "id": "qsign", "lane": "qa", "col": 4, "type": "security", "label": "Quality sign-off", "sublabel": "damage over threshold", "width": 140, "tag": "quality_signoff" },
+    { "id": "grn", "lane": "sap", "col": 5, "type": "database", "label": "stage_grn + post", "sublabel": "sap_outbound, 3 tries", "width": 140, "tag": "auto-post off" }
+  ],
+  "edges": [
+    { "id": "c1", "from": "up", "to": "claim", "label": "queued", "role": "main", "variant": "emphasis" },
+    { "id": "c2", "from": "claim", "to": "sheet", "label": "pick sheet", "role": "main", "variant": "emphasis" },
+    { "id": "c3", "from": "sheet", "to": "parse", "role": "main", "variant": "emphasis" },
+    { "id": "c4", "from": "parse", "to": "resolve", "label": "pending_review", "role": "main", "variant": "emphasis" },
+    { "id": "c5", "from": "resolve", "to": "recv", "label": "inbound created", "role": "main", "variant": "emphasis" },
+    { "id": "c6", "from": "resolve", "to": "poupd", "label": "PO qty request", "role": "branch", "variant": "dashed" },
+    { "id": "c7", "from": "recv", "to": "qsign", "label": "damage", "role": "branch", "variant": "security" },
+    { "id": "c8", "from": "recv", "to": "grn", "label": "no damage", "role": "main", "variant": "emphasis" },
+    { "id": "c9", "from": "qsign", "to": "grn", "label": "signed off", "role": "main", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Exceptions", "items": ["17 cause codes, e.g. po_not_found, part_not_on_po, qty_over, price_over_tolerance", "Resolutions: accept, reject, request_po_qty_update, confirm_mapping"] },
+    { "dot": "rose", "title": "Gates", "items": ["Posting blocks on PLACEHOLDER plant, location, movement or company code", "Both SAP writes are off by default; the stub returns posted_stub"] }
+  ]
+}

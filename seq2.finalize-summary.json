@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq2.json",
+    "sha256": "3393cee66542c9c10e2425465455b14dfb713bcf31f96628924051d48c106d59",
+    "bytes": 2522
+  },
+  "artifact": {
+    "path": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq2.html",
+    "sha256": "cc867c611dbdc55130f8a6fd60698e2335b23257e6512f37005942a71e45af39",
+    "bytes": 755135
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq2.finalize.json",
+    "summaryReceipt": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq2.finalize-summary.json",
+    "browserCheckReceipt": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\seq2.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.0.1",
+    "availableVersion": "3.0.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-05T03:32:23.014Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 8153
+}

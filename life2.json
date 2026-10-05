@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "CKD Batch and Inbound Lifecycle",
+    "output": ".archify/system-sahl-full-20261005-083100/life2.html",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "main", "label": "import_batches.state" },
+    { "id": "inbound", "label": "inbounds.state" },
+    { "id": "waiting", "label": "Sheet pick" },
+    { "id": "exits", "label": "Exits" }
+  ],
+  "states": [
+    { "id": "queued", "type": "start", "label": "queued", "sublabel": "worker claims", "lane": "main", "col": 0 },
+    { "id": "processing", "type": "active", "label": "processing", "sublabel": "parse, match", "lane": "main", "col": 1 },
+    { "id": "pending", "type": "waiting", "label": "pending_review", "sublabel": "resolve exceptions", "lane": "main", "col": 2, "tag": "human gate" },
+    { "id": "approved", "type": "decision", "label": "approved", "sublabel": "inbound created", "lane": "main", "col": 3 },
+    { "id": "staged", "type": "success", "label": "staged", "sublabel": "GRN in sap_outbound", "lane": "main", "col": 4 },
+    { "id": "whpend", "type": "waiting", "label": "warehouse_pending", "sublabel": "awaiting receipt", "lane": "inbound", "col": 3 },
+    { "id": "whconf", "type": "active", "label": "warehouse_confirmed", "sublabel": "counts recorded", "lane": "inbound", "col": 4 },
+    { "id": "await", "type": "waiting", "label": "awaiting_sheet", "sublabel": "awaiting_sheet_selection", "lane": "waiting", "col": 1 },
+    { "id": "failed", "type": "failure", "label": "failed", "sublabel": "error_message set", "lane": "exits", "col": 1 },
+    { "id": "reverted", "type": "failure", "label": "reverted", "sublabel": "write-back undone", "lane": "exits", "col": 4 }
+  ],
+  "transitions": [
+    { "id": "l1", "from": "queued", "to": "processing", "label": "claim", "variant": "emphasis" },
+    { "id": "l2", "from": "queued", "to": "await", "label": "preview", "variant": "dashed" },
+    { "id": "l3", "from": "await", "to": "processing", "label": "confirm sheet", "variant": "dashed" },
+    { "id": "l4", "from": "processing", "to": "pending", "label": "checkpoints", "variant": "emphasis" },
+    { "id": "l5", "from": "processing", "to": "failed", "label": "error", "variant": "security" },
+    { "id": "l6", "from": "pending", "to": "approved", "label": "approve", "variant": "emphasis" },
+    { "id": "l7", "from": "approved", "to": "whpend", "label": "inbound", "variant": "emphasis" },
+    { "id": "l8", "from": "whpend", "to": "whconf", "label": "confirm", "variant": "emphasis" },
+    { "id": "l9", "from": "whconf", "to": "staged", "label": "stage_grn", "variant": "emphasis" },
+    { "id": "l10", "from": "whconf", "to": "reverted", "label": "revert", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Batch vs inbound", "items": ["The batch is the review unit; each approved basket yields an inbound", "Archive is a flag on the batch, not a state"] },
+    { "dot": "rose", "title": "Recovery", "items": ["Failed batches record error_message", "Reprocess and revert are explicit Procurement actions"] }
+  ]
+}

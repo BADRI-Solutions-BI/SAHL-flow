@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAHL / Pehl: Full Visual</title>
+<style>
+  :root { --bg:#0f1420; --panel:#161d2d; --line:#26324a; --txt:#e6ebf5; --mut:#93a0b8; --acc:#4cc2ff; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--bg); color: var(--txt); font: 14px/1.5 system-ui, Segoe UI, sans-serif; }
+  header { padding: 10px 18px 0; border-bottom: 1px solid var(--line); background: #0b101b; }
+  header h1 { font-size: 16px; margin: 0 0 2px; }
+  header p { margin: 0 0 8px; color: var(--mut); font-size: 12px; }
+  nav { display: flex; flex-wrap: wrap; gap: 2px; }
+  nav button { background: transparent; color: var(--mut); border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; font: inherit; cursor: pointer; }
+  nav button:hover { color: var(--txt); }
+  nav button.on { color: var(--acc); border-bottom-color: var(--acc); }
+  .group { color: #5d6b86; font-size: 11px; align-self: center; padding: 0 6px 0 12px; text-transform: uppercase; letter-spacing: .06em; }
+  main { height: calc(100vh - 92px); }
+  iframe { width: 100%; height: 100%; border: 0; background: #fff; display: none; }
+  iframe.on { display: block; }
+  #ref { display: none; height: 100%; overflow: auto; padding: 20px 28px 60px; }
+  #ref.on { display: block; }
+  #ref h2 { margin: 28px 0 6px; font-size: 15px; color: var(--acc); }
+  #ref h2:first-child { margin-top: 0; }
+  table { border-collapse: collapse; width: 100%; background: var(--panel); margin-bottom: 8px; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 10px; border: 1px solid var(--line); font-size: 12.5px; }
+  th { color: var(--mut); background: #121a29; font-weight: 600; }
+  code { color: #9fd8ff; font-size: 12px; }
+  .warn { border-left: 3px solid #e8a33d; background: #2a2314; padding: 8px 12px; margin: 8px 0; font-size: 12.5px; }
+  .note { color: var(--mut); font-size: 12px; margin: 2px 0 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SAHL / Pehl: goods-receipt automation, end to end</h1>
+  <p>Generated 2026-10-05 from the repo at commit 76657f5 with Archify. Each tab is a self-contained interactive diagram. Facts were traced in code, not taken from CLAUDE.md alone.</p>
+  <nav id="tabs"></nav>
+</header>
+<main id="main"><div id="ref"></div></main>
+
+<script id="data" type="application/json">/*DATA*/</script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+const D = JSON.parse(document.getElementById('data').textContent);
+const main = document.getElementById('main'), tabs = document.getElementById('tabs'), ref = document.getElementById('ref');
+const dec = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
+const groups = { arch:'Structure', flow:'Structure', pipe:'Flows', ckd:'Flows', roles:'Flows', seq1:'Sequences', seq2:'Sequences', life1:'States', life2:'States', life3:'States', ref:'Reference' };
+let last = '';
+function show(id) {
+  location.hash = id;
+  [...tabs.querySelectorAll('button')].forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  main.querySelectorAll('iframe').forEach(f => f.classList.remove('on'));
+  ref.classList.toggle('on', id === 'ref');
+  if (id === 'ref') return;
+  let f = document.getElementById('f-' + id);
+  if (!f) { f = document.createElement('iframe'); f.id = 'f-' + id; f.srcdoc = dec(D.find(d => d.id === id).b64); main.appendChild(f); }
+  f.classList.add('on');
+}
+D.forEach(d => {
+  if (groups[d.id] !== last) { const g = document.createElement('span'); g.className = 'group'; g.textContent = groups[d.id]; tabs.appendChild(g); last = groups[d.id]; }
+  const b = document.createElement('button'); b.textContent = d.title; b.dataset.id = d.id; b.onclick = () => show(d.id); tabs.appendChild(b);
+});
+const g = document.createElement('span'); g.className = 'group'; g.textContent = 'Reference'; tabs.appendChild(g);
+const rb = document.createElement('button'); rb.textContent = 'Roles, schedules, scenarios'; rb.dataset.id = 'ref'; rb.onclick = () => show('ref'); tabs.appendChild(rb);
+ref.innerHTML = document.getElementById('reftpl').innerHTML;
+show(location.hash.slice(1) || 'arch');
+});
+</script>
+
+<template id="reftpl">
+<h2>Corrections to the project docs (verified in code)</h2>
+<div class="warn">CLAUDE.md is stale in several places. These diagrams follow the code.</div>
+<table>
+<tr><th>CLAUDE.md says</th><th>Code says</th></tr>
+<tr><td>16 tables, 4 migrations</td><td>32 tables across 51 migrations</td></tr>
+<tr><td>17-node pipeline</td><td>17 linear nodes plus a conditional <code>parse_spreadsheet</code> = 18 runnable (<code>agent-service/app/graph.py</code>)</td></tr>
+<tr><td><code>profiles.role</code> = warehouse | procurement | quality</td><td>Renamed to free-text <code>designation</code>. Access is <code>department_id</code> + permissions + <code>is_super_admin</code></td></tr>
+<tr><td>States include <code>staging</code>, <code>stage_failed</code></td><td>Removed in migration 20260922120000. 12 values remain; only 4 transitions are written by code</td></tr>
+<tr><td>Non-GR files are rejected</td><td>No such branch. A non-GR file defaults to <code>delivery_challan</code>, reaches pending_review, and a human rejects it</td></tr>
+<tr><td>Scheduled PO-mirror sync</td><td>Not built. <code>fetch_open_pos()</code> has no callers; <code>SAP_PO_SYNC_INTERVAL_MINUTES</code> is read by nothing. po_mirror comes from seed SQL</td></tr>
+<tr><td>Six screens</td><td>About 22 pages plus a second frontend, <code>web-v2</code></td></tr>
+</table>
+
+<h2>Roles and permissions</h2>
+<table>
+<tr><th>Role</th><th>Lands on</th><th>Default permissions (examples)</th></tr>
+<tr><td>Super Admin (<code>is_super_admin</code>)</td><td><code>/admin/users</code></td><td>Passes every route rule. Only role for <code>/admin/*</code>: users, departments, permissions, password reset. Seed account <code>admin@badri.local</code>, forced password change</td></tr>
+<tr><td>Procurement</td><td><code>/import</code></td><td>Almost everything: <code>upload.create</code>, <code>extraction.*</code>, <code>match.*</code>, <code>approval.decide</code>, <code>records.rerun/replace</code>, <code>import.*</code> (batch create, approve, resolve, reprocess, archive, PO update push), <code>vendors.create</code>, <code>vendor_senders.manage</code>, <code>email_intake.release</code>, <code>part_alias.revoke</code>, settings</td></tr>
+<tr><td>Warehouse</td><td><code>/import/inbounds</code></td><td><code>inbounds.confirm</code>, <code>import.revert</code>, handoff note PDF/XLSX</td></tr>
+<tr><td>Quality</td><td><code>/quality/vendor-damage</code></td><td><code>inbounds.quality_signoff</code>, <code>quality.vendor_damage.view</code>, handoff note exports. Also reaches <code>/po</code></td></tr>
+</table>
+<p class="note">Enforcement: <code>requirePermission</code> in route handlers, <code>requireSuperAdmin</code> for <code>/api/admin/*</code>, route map in <code>apps/web/lib/route-access.ts</code>. Public signup is disabled. Per-user grants copy from the department defaults and are editable by a super admin.</p>
+<div class="warn">Gap: <code>rules.write</code> is seeded but not enforced. <code>PATCH /api/rule-config/[id]</code> only requires a signed-in user. The <code>/rules</code> page is hidden from nav.</div>
+
+<h2>Screens (apps/web)</h2>
+<table>
+<tr><th>Route</th><th>Purpose</th><th>Access</th></tr>
+<tr><td><code>/dashboard</code></td><td>Awaiting review, exceptions, approved today, corrected this week, average pending age, Realtime import-attention card</td><td>Any session</td></tr>
+<tr><td><code>/upload</code></td><td>Challan upload with live SSE pipeline animation</td><td>Procurement</td></tr>
+<tr><td><code>/email-inbox</code>, <code>/vendor-senders</code></td><td>Emailed files, sender status, release or reject held mail; vendor master and authorised senders</td><td>Procurement</td></tr>
+<tr><td><code>/extraction</code>, <code>/match</code>, <code>/approval</code></td><td>Field correction + template-drift approval + finalize; per-line verdicts + part mapping; approve / reject / request info</td><td>Procurement</td></tr>
+<tr><td><code>/records</code>, <code>/po</code></td><td>Challan history, re-run, replace file; PO mirror viewer</td><td>Procurement (<code>/po</code> also Quality)</td></tr>
+<tr><td><code>/import</code>, <code>/import/upload</code>, <code>/import/[id]</code>, <code>/import/[id]/basket/[po]</code></td><td>CKD batch list, upload, detail with exceptions, PO basket</td><td>Procurement</td></tr>
+<tr><td><code>/import/inbounds</code>, <code>/import/inbounds/[id]/receive</code>, <code>/import/[id]/handoff-note</code></td><td>Inbound list, structured warehouse receipt, printable handoff note</td><td>Any session</td></tr>
+<tr><td><code>/quality/vendor-damage</code></td><td>Vendor damage KPI report (aggregated at read time)</td><td>Quality, Procurement</td></tr>
+<tr><td><code>/settings</code>, <code>/admin/users</code>, <code>/admin/departments</code></td><td>General, SAP connection, vendors, users, departments, profile; super-admin panels</td><td>Procurement / Super Admin</td></tr>
+<tr><td>Help chat widget</td><td><code>/api/help-chat</code> proxies to n8n; session required, 20 msgs/min/user, secret kept server-side</td><td>Any session</td></tr>
+</table>
+
+<h2>Schedules and background loops</h2>
+<p class="note">No cron and no pg_cron. Every schedule is a poll loop in a dedicated container.</p>
+<table>
+<tr><th>Job</th><th>Interval / trigger</th><th>What it does</th></tr>
+<tr><td><code>mail-intake</code></td><td>every 60s (<code>MAIL_POLL_INTERVAL_SECONDS</code>)</td><td>Re-lists the last 72h of the mailbox (<code>MAIL_LOOKBACK_HOURS</code>), dedupes by DB rows. Stages in order: ingest, process_released, sweep_processed, sweep_replies, sweep_decisions. Writes a heartbeat to <code>mail_state</code>. Decision emails up to 50 per tick</td></tr>
+<tr><td><code>import-worker</code></td><td>every 5s, sleeps only when idle</td><td>Claims a batch via <code>claim_next_import_batch</code> (FOR UPDATE SKIP LOCKED); stale claim window about 10 min</td></tr>
+<tr><td>SAP credential alarm</td><td>once a day inside the worker loop</td><td>Notifies Procurement when <code>SAP_PASSWORD_EXPIRES_AT</code> is within 14 days (no-op if unset)</td></tr>
+<tr><td>GRN post / PO qty push</td><td>3 in-line attempts, no scheduler</td><td>Both gated off by default</td></tr>
+<tr><td>UI</td><td>Realtime on import_batches, import_baskets, import_lines, inbounds, notifications; banner poll every 60s; SSE for pipeline progress</td><td>Live screens without refresh</td></tr>
+<tr><td>PO mirror sync</td><td><strong>none</strong></td><td>po_mirror is seeded from SQL; <code>fetch_open_pos()</code> is never called</td></tr>
+</table>
+
+<h2>Use cases and scenarios</h2>
+<table>
+<tr><th>Scenario</th><th>What happens</th></tr>
+<tr><td>Happy path challan</td><td>Upload or email, pipeline, pending_review, fix fields, finalize re-match, confirm mappings, approve: <code>sap_outbound</code> staged, review staged. No SAP call</td></tr>
+<tr><td>Short, over, unordered line</td><td><code>apply_rules</code> verdicts. Short/over use <code>rule_config</code> tolerances; unordered is hardcoded; an unreadable quantity is always blank + flagged. CKD equivalent is a cause code resolved by accept, reject, request_po_qty_update or confirm_mapping</td></tr>
+<tr><td>Handwritten challan</td><td><code>ocr_pass</code> refines the class to handwritten; lower confidence floors null unsure fields (null beats a guess) and the reviewer corrects them</td></tr>
+<tr><td>Template drift</td><td>Writes a pending <code>template_change_requests</code> row; a reviewer approves with <code>extraction.template_drift.approve</code>. Templates are append-only</td></tr>
+<tr><td>Part alias</td><td>Ambiguous or near-tie (delta under 0.05) goes to /match. Confirm writes <code>part_alias_map</code>; reject is audited; revoke needs <code>part_alias.revoke</code>. An alias to a part not on the PO is a flag</td></tr>
+<tr><td>Damaged goods</td><td>Warehouse records damaged qty; over the <code>damaged_goods_signoff_threshold</code> sets <code>quality_signoff_required</code>; Quality signs off, then the GRN posts if enabled</td></tr>
+<tr><td>Duplicate upload</td><td>sha256 match returns the existing row and flags <code>document_is_duplicate_of</code>; run continues. A duplicate CKD file returns the existing batch</td></tr>
+<tr><td>Non-GR document</td><td>Not auto-rejected. Treated as a challan; a human rejects with a reason</td></tr>
+<tr><td>Supplier info needed</td><td>request_info, needs_supplier_info, mark_info_received, received, re-run</td></tr>
+<tr><td>Re-run / replace</td><td>Re-run reuses the same document_id; refused once <code>sap_outbound</code> exists. Replace uploads a new file tagged <code>replaces_document_id</code></td></tr>
+<tr><td>Unknown email sender</td><td>Quarantined: no download, no OCR, no reply. Procurement supervisor notified. Release (optionally registering the sender) or reject. A vendor mismatch after processing is flagged</td></tr>
+<tr><td>Rule change</td><td><code>rule_config</code> is read fresh each run, so edits apply to the next run</td></tr>
+<tr><td>SAP post failure</td><td><code>post_failed</code> after 3 attempts; blocks on PLACEHOLDER plant/location/movement/company code. CKD path also has reprocess and revert</td></tr>
+</table>
+
+<h2>Notifications and outputs</h2>
+<table>
+<tr><th>Kinds (in-app row + best-effort SMTP)</th><th>Other outputs</th></tr>
+<tr><td><code>po_closed</code>, <code>batch_exception</code>, <code>batch_done</code>, <code>inbound_ready</code>, <code>po_qty_update_requested</code>, <code>sap_credential_expiring</code>, <code>email_intake_processed</code>, <code>decision_update</code></td><td>Graph sendMail replies and decision mails; handoff note PDF and XLSX; PO amendment PDF; append-only <code>audit</code> table; GRN payload in <code>sap_outbound</code></td></tr>
+</table>
+
+<h2>Data model (32 tables)</h2>
+<table>
+<tr><th>Group</th><th>Tables</th></tr>
+<tr><td>Core GR (16)</td><td>profiles, vendors, documents, vendor_templates, extractions, po_mirror, part_alias_map, template_change_requests, template_field_stats, rule_config, matches, match_lines, review, audit, sap_outbound, routing_decisions</td></tr>
+<tr><td>Added later (16)</td><td>document_files; import_batches, import_baskets, import_lines, inbounds, inbound_number_sequences, import_settings, notifications; departments, permissions, department_default_permissions, profile_permissions; sap_connection_settings; email_intake, mail_state; vendor_senders</td></tr>
+</table>
+
+<h2>Switches (docker-compose / env)</h2>
+<table>
+<tr><th>Variable</th><th>Values</th><th>Default</th></tr>
+<tr><td><code>EXTRACTION_PROVIDER</code></td><td>azure | cached | local</td><td>azure</td></tr>
+<tr><td><code>LLM_BACKEND</code></td><td>anthropic | ollama | openrouter (tiers fast / standard / deep)</td><td>anthropic</td></tr>
+<tr><td><code>SAP_BACKEND</code></td><td>stub | odata (auth basic or oauth2)</td><td>stub</td></tr>
+<tr><td><code>SAP_AUTO_POST_GR</code>, <code>SAP_PO_UPDATE_ENABLED</code></td><td>true | false</td><td>false</td></tr>
+<tr><td><code>MAIL_*</code></td><td>poll 60s, look-back 72h, allowed senders, mark-read</td><td>see compose</td></tr>
+<tr><td>Ollama</td><td><code>docker compose --profile onprem up -d</code> (pulls glm-ocr)</td><td>off</td></tr>
+</table>
+
+<h2>Not verified</h2>
+<p class="note">Exact department grants for <code>settings.sap_connection.manage</code> and <code>import.archive</code>; the email-intake reject handler body; per-class confidence-floor values; how <code>web-v2</code> differs functionally from <code>web</code>; what triggers the <code>superseded</code> GRN status. The diagrams carry no per-node source citations: they were authored from a code trace, not with Archify repository evidence.</p>
+</template>
+</body>
+</html>

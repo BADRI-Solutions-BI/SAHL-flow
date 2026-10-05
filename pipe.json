@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Challan Pipeline: Upload to Staged GRN",
+    "output": ".archify/system-sahl-full-20261005-083100/pipe.html",
+    "quality_profile": "showcase",
+    "viewBox": [1230, 786]
+  },
+  "lanes": [
+    { "id": "read", "label": "1 Read" },
+    { "id": "und", "label": "2 Understand" },
+    { "id": "match", "label": "3 Match" },
+    { "id": "rev", "label": "4 Human review" },
+    { "id": "out", "label": "5 Outcome" }
+  ],
+  "nodes": [
+    { "id": "intake", "lane": "read", "col": 0, "type": "frontend", "label": "intake", "sublabel": "sha256 of files", "width": 130 },
+    { "id": "capture", "lane": "read", "col": 1, "type": "backend", "label": "classify_capture", "sublabel": "pdf, scan, photo", "width": 130 },
+    { "id": "ocr", "lane": "read", "col": 2, "type": "external", "label": "ocr / parse sheet", "sublabel": "tabular skips OCR", "width": 130 },
+    { "id": "doctype", "lane": "read", "col": 3, "type": "backend", "label": "classify_doc_type", "sublabel": "DC, DN or PL", "width": 130 },
+    { "id": "persist", "lane": "read", "col": 4, "type": "database", "label": "persist_document", "sublabel": "dedup + storage", "width": 130 },
+
+    { "id": "vendor", "lane": "und", "col": 4, "type": "backend", "label": "resolve_vendor", "sublabel": "NTN, fuzzy, LLM pick", "width": 130 },
+    { "id": "route", "lane": "und", "col": 3, "type": "backend", "label": "route", "sublabel": "RuleRouter live", "width": 130 },
+    { "id": "assign", "lane": "und", "col": 2, "type": "backend", "label": "assign_fields", "sublabel": "LLM + token grounding", "width": 130, "tag": "null beats guess" },
+    { "id": "drift", "lane": "und", "col": 1, "type": "backend", "label": "template_drift", "sublabel": "new row, never UPDATE", "width": 130 },
+    { "id": "norm", "lane": "und", "col": 0, "type": "security", "label": "normalize", "sublabel": "confidence floors", "width": 130 },
+
+    { "id": "po", "lane": "match", "col": 0, "type": "backend", "label": "resolve_po", "sublabel": "open PO lines", "width": 130 },
+    { "id": "match", "lane": "match", "col": 1, "type": "backend", "label": "match", "sublabel": "exact part number", "width": 130 },
+    { "id": "map", "lane": "match", "col": 2, "type": "backend", "label": "part_mapping", "sublabel": "alias prior, PO decides", "width": 130 },
+    { "id": "rules", "lane": "match", "col": 3, "type": "security", "label": "apply_rules", "sublabel": "zero LLM verdicts", "width": 130 },
+    { "id": "xchk", "lane": "match", "col": 4, "type": "backend", "label": "cross_check", "sublabel": "recompute totals", "width": 130 },
+    { "id": "stage", "lane": "match", "col": 5, "type": "database", "label": "stage_for_review", "sublabel": "pending_review + audit", "width": 130 },
+
+    { "id": "pending", "lane": "rev", "col": 5, "type": "frontend", "label": "Review queue", "sublabel": "/extraction", "width": 130 },
+    { "id": "edit", "lane": "rev", "col": 4, "type": "frontend", "label": "Fix fields", "sublabel": "edit, finalize re-match", "width": 130 },
+    { "id": "confirm", "lane": "rev", "col": 3, "type": "frontend", "label": "Confirm mappings", "sublabel": "/match, drift approve", "width": 130 },
+    { "id": "decide", "lane": "rev", "col": 2, "type": "security", "label": "Decision", "sublabel": "/approval", "width": 130, "tag": "approve.decide" },
+
+    { "id": "reject", "lane": "out", "col": 1, "type": "backend", "label": "rejected", "sublabel": "reason required", "width": 130 },
+    { "id": "staged", "lane": "out", "col": 2, "type": "database", "label": "staged", "sublabel": "sap_outbound row", "width": 130 },
+    { "id": "info", "lane": "out", "col": 3, "type": "messagebus", "label": "needs_supplier_info", "sublabel": "wait, re-run", "width": 130 }
+  ],
+  "edges": [
+    { "id": "e1", "from": "intake", "to": "capture", "role": "main", "variant": "emphasis" },
+    { "id": "e2", "from": "capture", "to": "ocr", "role": "main", "variant": "emphasis" },
+    { "id": "e3", "from": "ocr", "to": "doctype", "role": "main", "variant": "emphasis" },
+    { "id": "e4", "from": "doctype", "to": "persist", "role": "main", "variant": "emphasis" },
+    { "id": "e7", "from": "persist", "to": "vendor", "role": "main", "variant": "emphasis" },
+    { "id": "e8", "from": "vendor", "to": "route", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e9", "from": "route", "to": "assign", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e10", "from": "assign", "to": "drift", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e11", "from": "drift", "to": "norm", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e12", "from": "norm", "to": "po", "role": "main", "variant": "emphasis" },
+    { "id": "e13", "from": "po", "to": "match", "role": "main", "variant": "emphasis" },
+    { "id": "e14", "from": "match", "to": "map", "role": "main", "variant": "emphasis" },
+    { "id": "e15", "from": "map", "to": "rules", "role": "main", "variant": "emphasis" },
+    { "id": "e16", "from": "rules", "to": "xchk", "role": "main", "variant": "emphasis" },
+    { "id": "e17", "from": "xchk", "to": "stage", "role": "main", "variant": "emphasis" },
+    { "id": "e18", "from": "stage", "to": "pending", "role": "main", "variant": "emphasis" },
+    { "id": "e19", "from": "pending", "to": "edit", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e20", "from": "edit", "to": "confirm", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e21", "from": "confirm", "to": "decide", "role": "main", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "e22", "from": "decide", "to": "staged", "label": "approve", "role": "main", "variant": "emphasis" },
+    { "id": "e23", "from": "decide", "to": "reject", "label": "reject", "role": "error", "variant": "security" },
+    { "id": "e24", "from": "decide", "to": "info", "label": "request_info", "role": "branch", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "18 runnable nodes", "items": ["17 linear plus parse_spreadsheet for tabular lineage", "Lineage is fixed by classify_capture and never switches mid-run"] },
+    { "dot": "rose", "title": "Guarantees", "items": ["A field never exists without source tokens", "Unordered item and unreadable field are always flagged", "No SAP call on this path: approve only stages sap_outbound"] }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "4205efe9-b07e-48e1-b53b-877a885593d6",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\life1.json",
+  "output": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\life1.html",
+  "specification": {
+    "sha256": "4c95d3f2e888230a9014d419d8658d0565ae8457ee0a3ca5ddc691d41d6e6924",
+    "bytes": 2108
+  },
+  "artifact": {
+    "sha256": "71f66d90728cdd28049d4ac3a05e15f1203a3ec035b7a655cbcffbd92ec0c7e7",
+    "bytes": 755563
+  }
+}

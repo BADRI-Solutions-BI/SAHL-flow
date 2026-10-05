@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Challan Upload to Staged GRN",
+    "output": ".archify/system-sahl-full-20261005-083100/seq2.html",
+    "viewBox": [1080, 640],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "user", "type": "external", "label": "Procurement", "sublabel": "reviewer" },
+    { "id": "web", "type": "frontend", "label": "web", "sublabel": "route handlers" },
+    { "id": "agent", "type": "backend", "label": "agent-service", "sublabel": "LangGraph" },
+    { "id": "ai", "type": "external", "label": "OCR + LLM", "sublabel": "provider seams" },
+    { "id": "db", "type": "database", "label": "Postgres", "sublabel": "review, audit" }
+  ],
+  "messages": [
+    { "id": "s1", "from": "user", "to": "web", "y": 170, "label": "upload challan", "variant": "emphasis" },
+    { "id": "s2", "from": "web", "to": "agent", "y": 198, "label": "POST /pipeline/run", "variant": "emphasis" },
+    { "id": "s3", "from": "agent", "to": "ai", "y": 228, "label": "read tokens, assign fields", "variant": "default" },
+    { "id": "s4", "from": "ai", "to": "agent", "y": 256, "label": "grounded fields", "variant": "return" },
+    { "id": "s5", "from": "agent", "to": "db", "y": 286, "label": "dedup, persist, pending_review", "variant": "emphasis" },
+    { "id": "s6", "from": "agent", "to": "web", "y": 316, "label": "SSE node events", "variant": "dashed" },
+    { "id": "s7", "from": "web", "to": "user", "y": 344, "label": "live progress, result", "variant": "return" },
+    { "id": "s8", "from": "user", "to": "web", "y": 376, "label": "edit fields, finalize", "variant": "default" },
+    { "id": "s9", "from": "web", "to": "agent", "y": 404, "label": "re-match, no OCR or LLM", "variant": "default" },
+    { "id": "s10", "from": "user", "to": "web", "y": 436, "label": "approve (approval.decide)", "variant": "security" },
+    { "id": "s11", "from": "web", "to": "db", "y": 466, "label": "sap_outbound + review staged + audit", "variant": "security" },
+    { "id": "s12", "from": "web", "to": "user", "y": 496, "label": "staged, 409 if duplicate", "variant": "return" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Approve is local", "items": ["Approve inserts the GRN payload with idempotency_key = document_id", "No SAP call on the challan path"] },
+    { "dot": "rose", "title": "Reject and request info", "items": ["Reject needs a reason", "request_info parks the document until info is marked received"] }
+  ]
+}

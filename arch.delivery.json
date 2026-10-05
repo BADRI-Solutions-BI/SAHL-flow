@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "860117a8-d4fa-4225-bf97-85ab8bc02e07",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\arch.json",
+  "output": "C:\\BADRI Solutions\\SAHL\\.archify\\system-sahl-full-20261005-083100\\arch.html",
+  "specification": {
+    "sha256": "3e3c18f7dacc374a2c60af1f82f3a15ee4b7294806216d52e2d3b82d859878fa",
+    "bytes": 4848
+  },
+  "artifact": {
+    "sha256": "cab38a608122703470b357a732b0192f239a97e287b0bc442b4769ca5ddec4a7",
+    "bytes": 774231
+  }
+}

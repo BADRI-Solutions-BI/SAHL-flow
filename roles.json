@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Who Does What: Roles Across the Process",
+    "output": ".archify/system-sahl-full-20261005-083100/roles.html",
+    "quality_profile": "showcase",
+    "viewBox": [1230, 786]
+  },
+  "lanes": [
+    { "id": "admin", "label": "Super Admin" },
+    { "id": "proc", "label": "Procurement" },
+    { "id": "sys", "label": "SAHL system" },
+    { "id": "wh", "label": "Warehouse" },
+    { "id": "qa", "label": "Quality" }
+  ],
+  "nodes": [
+    { "id": "a0", "lane": "admin", "col": 0, "type": "security", "label": "Create users", "sublabel": "departments, no signup", "width": 140, "tag": "/admin" },
+    { "id": "a1", "lane": "admin", "col": 1, "type": "security", "label": "Grant permissions", "sublabel": "per user, from dept", "width": 140 },
+    { "id": "p1", "lane": "proc", "col": 1, "type": "frontend", "label": "Register vendors", "sublabel": "plus sender addresses", "width": 140, "tag": "vendors.create" },
+    { "id": "p2", "lane": "proc", "col": 2, "type": "frontend", "label": "Upload or release", "sublabel": "DC, CKD list, held mail", "width": 140, "tag": "upload.create" },
+    { "id": "s3", "lane": "sys", "col": 3, "type": "backend", "label": "Pipeline / worker", "sublabel": "extract, match, flag", "width": 140 },
+    { "id": "p4", "lane": "proc", "col": 4, "type": "security", "label": "Review + approve", "sublabel": "fix, map, resolve", "width": 140, "tag": "approval.decide" },
+    { "id": "w5", "lane": "wh", "col": 5, "type": "frontend", "label": "Confirm receipt", "sublabel": "/import/inbounds", "width": 140, "tag": "inbounds.confirm" },
+    { "id": "q4", "lane": "qa", "col": 4, "type": "security", "label": "Sign off damage", "sublabel": "vendor damage report", "width": 140, "tag": "quality_signoff" },
+    { "id": "s5", "lane": "sys", "col": 5, "type": "database", "label": "GRN staged", "sublabel": "SAP post if enabled", "width": 140 }
+  ],
+  "edges": [
+    { "id": "r1", "from": "a0", "to": "a1", "role": "main", "variant": "emphasis" },
+    { "id": "r2", "from": "a1", "to": "p1", "label": "login", "role": "main", "variant": "emphasis" },
+    { "id": "r3", "from": "p1", "to": "p2", "role": "main", "variant": "emphasis" },
+    { "id": "r4", "from": "p2", "to": "s3", "label": "queued", "role": "main", "variant": "emphasis" },
+    { "id": "r5", "from": "s3", "to": "p4", "label": "pending_review", "role": "main", "variant": "emphasis" },
+    { "id": "r6", "from": "p4", "to": "w5", "label": "approved", "role": "main", "variant": "emphasis" },
+    { "id": "r7", "from": "w5", "to": "q4", "label": "damage", "role": "branch", "variant": "security" },
+    { "id": "r8", "from": "w5", "to": "s5", "label": "confirmed", "role": "main", "variant": "emphasis" },
+    { "id": "r9", "from": "q4", "to": "s5", "label": "signed off", "role": "branch", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Departments", "items": ["Warehouse lands on /import/inbounds, Quality on vendor damage, Procurement on /import", "Super Admin passes every route rule and lands on /admin/users"] },
+    { "dot": "amber", "title": "Known gap", "items": ["rules.write is seeded but not enforced: any signed-in user can PATCH rule-config", "The /rules page is hidden from nav"] }
+  ]
+}

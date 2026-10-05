@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "SAHL Data In to Data Out",
+    "output": ".archify/system-sahl-full-20261005-083100/flow.html",
+    "quality_profile": "showcase",
+    "viewBox": [1075, 620]
+  },
+  "stages": [
+    { "label": "Sources" },
+    { "label": "Gate" },
+    { "label": "Process" },
+    { "label": "Store" },
+    { "label": "Out" }
+  ],
+  "nodes": [
+    { "id": "dc", "type": "frontend", "label": "DC/DN/PL upload", "sublabel": "pdf img csv xlsx", "stage": 0, "row": 0, "tag": "25 MB" },
+    { "id": "dedup", "type": "security", "label": "sha256 dedup", "sublabel": "documents", "stage": 1, "row": 0, "tag": "UNIQUE" },
+    { "id": "pipe", "type": "backend", "label": "LangGraph", "sublabel": "OCR, LLM, rules", "stage": 2, "row": 0, "tag": "SSE" },
+    { "id": "pg", "type": "database", "label": "Postgres", "sublabel": "extractions, matches", "stage": 3, "row": 0, "tag": "RLS" },
+    { "id": "export", "type": "backend", "label": "Dashboard", "sublabel": "KPIs, records", "stage": 4, "row": 0 },
+
+    { "id": "email", "type": "external", "label": "Vendor email", "sublabel": "Graph mailbox", "stage": 0, "row": 1 },
+    { "id": "sender", "type": "security", "label": "Sender registry", "sublabel": "unknown = held", "stage": 1, "row": 1, "tag": "quarantine" },
+    { "id": "mail", "type": "backend", "label": "mail-intake", "sublabel": "60s poll", "stage": 2, "row": 1 },
+    { "id": "mailtbl", "type": "database", "label": "email_intake", "sublabel": "one row per file", "stage": 3, "row": 1 },
+    { "id": "reply", "type": "external", "label": "Reply mail", "sublabel": "sender + supervisor", "stage": 4, "row": 1 },
+
+    { "id": "ckd", "type": "frontend", "label": "CKD packing list", "sublabel": "csv xlsx", "stage": 0, "row": 2, "tag": "25 MB" },
+    { "id": "dedup2", "type": "security", "label": "sha256 dedup", "sublabel": "import_batches", "stage": 1, "row": 2, "tag": "UNIQUE" },
+    { "id": "worker", "type": "backend", "label": "import-worker", "sublabel": "5s poll", "stage": 2, "row": 2 },
+    { "id": "pg2", "type": "database", "label": "import tables", "sublabel": "batches, lines", "stage": 3, "row": 2 },
+    { "id": "notify", "type": "backend", "label": "Notifications", "sublabel": "in-app + SMTP", "stage": 4, "row": 2 },
+
+    { "id": "po", "type": "database", "label": "PO export", "sublabel": "seed SQL only", "stage": 0, "row": 3, "tag": "no sync" },
+    { "id": "pomirror", "type": "database", "label": "po_mirror", "sublabel": "PO lines", "stage": 1, "row": 3 },
+    { "id": "review", "type": "frontend", "label": "Human review", "sublabel": "edit, map, approve", "stage": 2, "row": 3 },
+    { "id": "grn", "type": "database", "label": "sap_outbound", "sublabel": "GRN payload", "stage": 3, "row": 3, "tag": "idempotent" },
+    { "id": "sapo", "type": "cloud", "label": "SAP S/4HANA", "sublabel": "material doc", "stage": 4, "row": 3, "tag": "gated" }
+  ],
+  "flows": [
+    { "id": "f1", "from": "dc", "to": "dedup", "label": "files", "classification": "document", "variant": "emphasis" },
+    { "id": "f2", "from": "dedup", "to": "pipe", "label": "new doc", "variant": "emphasis" },
+    { "id": "f3", "from": "pipe", "to": "pg", "label": "fields", "variant": "emphasis" },
+    { "id": "f4", "from": "pg", "to": "export", "label": "read", "variant": "dashed" },
+
+    { "id": "f5", "from": "email", "to": "sender", "label": "files", "classification": "external", "variant": "security" },
+    { "id": "f6", "from": "sender", "to": "mail", "label": "registered", "variant": "default" },
+    { "id": "f7", "from": "mail", "to": "mailtbl", "label": "track", "variant": "default" },
+    { "id": "f8", "from": "mailtbl", "to": "reply", "label": "sweep", "variant": "dashed" },
+    { "id": "f9", "from": "mail", "to": "pipe", "label": "dc channel", "labelDx": 45, "variant": "emphasis" },
+    { "id": "f10", "from": "mail", "to": "worker", "label": "ckd channel", "labelAt": [575, 315], "variant": "emphasis" },
+
+    { "id": "f11", "from": "ckd", "to": "dedup2", "label": "workbook", "classification": "document", "variant": "emphasis" },
+    { "id": "f12", "from": "dedup2", "to": "worker", "label": "queued", "variant": "emphasis" },
+    { "id": "f13", "from": "worker", "to": "pg2", "label": "lines", "variant": "emphasis" },
+    { "id": "f14", "from": "pg2", "to": "notify", "label": "events", "variant": "dashed" },
+
+    { "id": "f15", "from": "po", "to": "pomirror", "label": "seed", "variant": "default" },
+    { "id": "f16", "from": "pomirror", "to": "review", "label": "PO lines", "variant": "default" },
+    { "id": "f17", "from": "review", "to": "grn", "label": "approve", "variant": "security" },
+    { "id": "f18", "from": "grn", "to": "sapo", "label": "OData", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "In", "items": ["Web upload, CKD upload, vendor email", "PO data is seeded, never uploaded", "Duplicates return the existing row"] },
+    { "dot": "rose", "title": "Gates", "items": ["Unknown email senders are held, never OCRed", "Nothing reaches SAP without human approval", "Review also reads pg and import tables (Realtime)"] },
+    { "dot": "orange", "title": "Out", "items": ["GRN payload staged once per idempotency key", "SAP post only when SAP_AUTO_POST_GR is on"] }
+  ]
+}
